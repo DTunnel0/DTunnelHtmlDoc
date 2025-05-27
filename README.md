@@ -1,323 +1,254 @@
 # DTunnel - Documentação da API
 
-Esta é a documentação da API do sistema de configuração da aplicação DTunnel.
-Aqui estão listados todos os métodos disponíveis com suas respectivas descrições.
+Esta é a documentação da API JavaScript para uso dos hooks nativos fornecidos pelo sistema DTunnel, disponível via `window.Dt*`. Abaixo estão listados todos os métodos/interfaces disponíveis, agrupados por categoria, com descrições, parâmetros, retornos e exemplos de uso.
 
-**É importante lembrar que esses métodos devem ser chamados a partir do código JavaScript para poderem ser utilizados. Portanto, se você estiver desenvolvendo um layout que utilize esses métodos, certifique-se de chamar os métodos corretamente a partir do código JavaScript para que eles funcionem adequadamente**.
+> **Importante:** Todos os métodos devem ser chamados a partir de JavaScript. Certifique-se de que o contexto `window.Dt*` está disponível antes de utilizá-los.
+
+---
+
+## Índice
+
+- [Configuração](#configuração)
+- [Ambiente de Rede](#ambiente-de-rede)
+- [VPN](#vpn)
+- [Interface Nativa](#interface-nativa)
+- [Informações de Dispositivo](#informações-de-dispositivo)
+- [Usuário e Autenticação](#usuário-e-autenticação)
+- [Logs](#logs)
+- [Tradução](#tradução)
+- [Notificações](#notificações)
+- [Web Views e URLs Externas](#web-views-e-urls-externas)
+- [HotSpot](#hotspot)
+- [Modo Avião](#modo-avião)
+- [Outros](#outros)
+
+---
 
 ## Configuração
 
-### DtSetConfig.execute(id)
+### `window.DtGetConfigs.execute()`
 
-Método utilizado para definir a configuração padrão do app.
+Retorna um _array_ de categorias com itens de configuração.
 
-Parâmetros:
-
-- id (integer): Identificador da configuração a ser setada.
-
-Retorno: void
-
-Exemplo:
-
-```html
-<script>
-    DtSetConfig.execute(1000)
-</script>
+```js
+const configs = window.DtGetConfigs.execute();
+// Exemplo de retorno:
+// [ { id:1, name:'Categoria', sorter:1, color:'#FFF', items:[ {...} ] } ]
 ```
 
-### DtGetConfigs.execute()
+### `window.DtSetConfig.execute(id: number): void`
 
-Método utilizado para obter todas as configurações disponíveis.
+Define o item de configuração ativo pelo seu `id`.
 
-Parâmetros: nenhum
-
-Retorno: string (json contendo todas as configurações)
-
-Exemplo:
-
-```json
-[
-    {
-        "id": 1000,
-        "name": "Categoria 01",
-        "sorter": 1,
-        "color": "#FFFFFF",
-        "items": [
-            {
-                "id": 1000,
-                "name": "Configuração 01",
-                "description": "Descricão da configuração",
-                "mode": "SSH_DIRECT",
-                "sorter": 1,
-                "icon": "https://example.com/assets/icon1.png"
-            },
-            {
-                "id": 1001,
-                "name": "Configuração 02",
-                "description": "Descricão da configuração",
-                "mode": "SSH_DIRECT",
-                "sorter": 2,
-                "icon": "https://example.com/assets/icon2.png"
-            },
-        ]
-    }
-]
+```js
+window.DtSetConfig.execute(1000);
 ```
 
-### DtGetDefaultConfig.execute()
+### `window.DtGetDefaultConfig.execute(): Config | undefined`
 
-Método utilizado para obter a configuração padrão atual do app.
+Retorna o item selecionado ou `undefined` se nenhum estiver ativo.
 
-Parâmetros: nenhum
-
-Retorno: string (configuração padrão)
-
-Exemplo:
-
-```json
-{
-    "id": 1000,
-    "name": "Configuração 01",
-    "description": "Descricão da configuração",
-    "mode": "SSH_DIRECT",
-    "sorter": 1,
-    "icon": "https://example.com/assets/icon1.png"
-}
+```js
+const current = window.DtGetDefaultConfig.execute();
+if (current) console.log(current.name);
 ```
 
-### DtExecuteVpnStop.execute()
+---
 
-Método utilizado para parar o serviço de VPN.
+## Ambiente de Rede
 
-Parâmetros: nenhum
+### `window.DtGetLocalIP.execute(): string`
 
-Retorno: void
+Retorna o IP local (e.g., `'192.168.1.100'`).
 
-### DtExecuteDialogConfig.execute()
+### `window.DtGetNetworkName.execute(): string`
 
-Método utilizado para mostrar o diálogo nativo de configuração.
+Nome da rede atual (e.g., `'WIFI'`, `'MOBILE'`).
 
-Parâmetros: nenhum
+### `window.DtGetPingResult.execute(): number`
 
-Retorno: void
+Tempo de ping em milissegundos.
 
-## Usuário
+### `window.DtGetNetworkData.execute(): { type_name:'MOBILE'|'WIFI', type:number, extra_info:string, detailed_state:string, reason?:string }`
 
-### DtUsername.get()
+Retorna objeto com detalhes do estado de rede.
 
-Método utilizado para obter o nome do usuário atual.
-
-Parâmetros: nenhum
-
-Retorno: string (nome do usuário)
-
-### DtUsername.set(username)
-
-Método utilizado para definir o nome do usuário.
-
-Parâmetros:
-
-- username (string): Novo nome de usuário.
-
-Retorno: void
-
-### DtPassword.get()
-
-Método utilizado para obter a senha atual.
-
-Parâmetros: nenhum
-
-Retorno: string (senha atual)
-
-### DtPassword.set(password)
-
-Método utilizado para definir a senha.
-
-Parâmetros:
-
-- password (string): Nova senha.
-
-Retorno: void
-
-### DtUuid.get()
-
-Método utilizado para obter o uuid atual (v2ray).
-
-Parâmetros: nenhum
-
-Retorno: string (uuid)
-
-### DtUuid.set(uuid)
-
-Método utilizado para definir o uuid (v2ray).
-
-Parâmetros:
-
-- uuid (string): Novo uuid.
-
-Retorno: void
-
-## Logs
-
-### DtGetLogs.execute()
-
-Método utilizado para obter todos os logs.
-
-Parâmetros: nenhum
-
-Retorno: string (json contendo todos os logs)
-
-Exemplo:
-
-```javascript
-[
-    {
-        "00:00:00": "MESSAGE"
-    }
-]
-```
-
-### DtClearLogs.execute()
-
-Método utilizado para limpar todos os logs.
-
-Parâmetros: nenhum
-
-Retorno: void
-
-### DtShowLoggerDialog.execute()
-
-Método utilizado para mostrar o diálogo nativo de logs.
-
-Parâmetros: nenhum
-
-Retorno: void
+---
 
 ## VPN
 
-### DtExecuteVpnStart.execute()
+### `window.DtGetVpnState.execute(): 'CONNECTED'|'DISCONNECTED'|'CONNECTING'|'STOPPING'|'NO_NETWORK'|'AUTH'|'AUTH_FAILED'`
 
-Método utilizado para iniciar o serviço de VPN.
+Estado atual da VPN.
 
-Parâmetros: nenhum
+### `window.DtExecuteVpnStart.execute(): void`
 
-Retorno: void
+Inicia a conexão VPN.
 
-### DtGetVpnState.execute()
+### `window.DtExecuteVpnStop.execute(): void`
 
-Método utilizado para obter o status atual da VPN.
+Para a conexão VPN.
 
-Parâmetros: nenhum
+---
 
-Retorno: string (status atual)
+## Interface Nativa
 
-Exemplo:**```CONNECTED, DISCONNECTED, CONNECTING, STOPPING, NO_NETWORK, AUTH, AUTH_FAILED```**
+### `window.DtExecuteDialogConfig.execute(): void`
 
-## Atualização e checagem
+Abre diálogo de configurações nativo.
 
-### DtStartAppUpdate.execute()
+### `window.DtShowLoggerDialog.execute(): void`
 
-Método utilizado para buscar atualizações.
+Abre diálogo de logs de conexão.
 
-Parâmetros: nenhum
+### `window.DtShowMenuDialog.execute(): void`
 
-Retorno: void
+Abre menu de ferramentas nativas.
 
-### DtStartCheckUser.execute()
+---
 
-Método utilizado para fazer a checagem do usuário.
+## Informações de Dispositivo
 
-Parâmetros: nenhum
+### `window.DtGetStatusBarHeight.execute(): number`
 
-Retorno: void
+Altura da barra de status (pixels).
+
+### `window.DtGetNavigationBarHeight.execute(): number`
+
+Altura da barra de navegação (pixels).
+
+### `window.DtGetDeviceID.execute(): string`
+
+ID único do dispositivo.
+
+### `window.DtAppVersion.execute(): string`
+
+Versão atual do aplicativo.
+
+---
+
+## Usuário e Autenticação
+
+#### `window.DtUsername.get(): string` / `DtUsername.set(username: string): void`
+
+Obtem/define nome de usuário.
+
+#### `window.DtPassword.get(): string` / `DtPassword.set(password: string): void`
+
+Obtem/define senha.
+
+#### `window.DtUuid.get(): string` / `DtUuid.set(uuid: string): void`
+
+Obtem/define UUID (v2ray).
+
+---
+
+## Logs
+
+### `window.DtGetLogs.execute(): string`
+
+Retorna JSON com todos os logs.
+
+### `window.DtClearLogs.execute(): void`
+
+Limpa todos os logs.
+
+---
 
 ## Tradução
 
-### DtTranslateText.execute(label)
+### `window.DtTranslateText.execute(label: string): string`
 
-Método utilizado para pegar um texto a partir de um label.
+Retorna texto traduzido para a chave.
 
-Parâmetros:
-
-- label (string): Label do texto a ser traduzido.
-
-Retorno: string (texto traduzido)
-
-Exemplo:
-
-``` html
-<script>
-    const text = DtTranslateText.execute('LBL_START')
-    console.log(text) // INICAR
-</script>
+```js
+const label = window.DtTranslateText.execute("LBL_START");
 ```
 
-## Limpeza e configurações do app
+---
 
-### DtCleanApp.execute()
+## Notificações
 
-Método utilizado para limpar todos os dados do aplicativo.
+### `window.DtSendNotification.execute(title: string, message: string, imageUrl: string): void`
 
-Parâmetros: nenhum
+Envia notificação local.
 
-Retorno: void
+---
 
-### DtGetAppConfig.execute(name)
+## Web Views e URLs Externas
 
-Método utilizado para obter uma configuração específica do aplicativo.
+### `window.DtStartWebViewActivity.execute(url: string): void`
 
-Parâmetros:
+Abre página interna via WebView.
 
-- name (string): Nome da configuração.
+### `window.DtOpenExternalUrl.execute(url: string): void`
 
-Retorno: string (valor da configuração)
+Abre URL no navegador padrão.
 
-### DtIgnoreBatteryOptimizations.execute()
+---
 
-Método utilizado para ignorar a economia de bateria.
+## HotSpot
 
-Parâmetros: nenhum
+### `window.DtGetStatusHotSpotService.execute(): 'STOPPED'|'RUNNING'`
 
-Retorno: void
+Status do serviço HotSpot.
 
-### DtStartApnActivity.execute()
+### `window.DtStartHotSpotService.execute(): void`
 
-Método utilizado para iniciar a atividade de APN.
+Inicia HotSpot.
 
-Parâmetros: nenhum
+### `window.DtStopHotSpotService.execute(): void`
 
-Retorno: void
+Para HotSpot.
 
-### DtStartWebViewActivity.execute()
+### `window.DtGetNetworkDownloadBytes.execute(): number`
 
-Método utilizado para iniciar a atividade de página WebView.
+Total de bytes baixados.
 
-Parâmetros: nenhum
+### `window.DtGetNetworkUploadBytes.execute(): number`
 
-Retorno: void
+Total de bytes enviados.
 
-### DtStartWebViewActivity.execute(url)
+---
 
-Método utilizado para iniciar a atividade de página WebView a partir de uma URL.
+## Modo Avião
 
-Parâmetros:
+### `window.DtAirplaneState.execute(): 'ACTIVE'|'INACTIVE'`
 
-- url (string): URL da página.
+Estado do modo avião.
 
-Retorno: void
+### `window.DtAirplaneActivate.execute(): void`
 
-Exemplo:
+Ativa modo avião.
 
-```html
-<script>
-    DtStartWebViewActivity.execute('https://example.com')
-</script>
-```
+### `window.DtAirplaneDeactivate.execute(): void`
 
-### DtStartRadioInfoActivity.execute()
+Desativa modo avião.
 
-Método utilizado para iniciar a atividade de informações do rádio (em breve).
+---
 
-Parâmetros: nenhum
+## Outros
 
-Retorno: void
+### `window.DtGetLocalConfigVersion.execute(): string`
+
+Versão da configuração local (e.g., `'1.2.3'`).
+
+### `window.DtStartAppUpdate.execute(): void`
+
+Inicia processo de atualização da aplicação.
+
+### `window.DtStartCheckUser.execute(): void`
+
+Abre diálogo de checagem de usuário.
+
+### `window.DtAppIsCurrentAssistant.execute(): boolean`
+
+Verifica se app é assistente de voz padrão.
+
+### `window.DtGoToVoiceInputSettings.execute(): void`
+
+Abre configurações de assistente de voz.
+
+---
+
+_Esta documentação será atualizada conforme novos métodos forem adicionados._
